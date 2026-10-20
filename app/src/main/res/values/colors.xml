@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- iPadOS Settings-inspired palette (dark) -->
+    <color name="window_bg">#101014</color>
+    <color name="card_bg">#1D1D22</color>
+    <color name="row_focus_bg">#2A2A30</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#9A9AA3</color>
+    <color name="accent">#0A84FF</color>
+    <color name="divider">#333338</color>
+    <color name="switch_track_off">#3A3A3F</color>
+    <color name="switch_thumb_off">#E8E8EC</color>
+</resources>

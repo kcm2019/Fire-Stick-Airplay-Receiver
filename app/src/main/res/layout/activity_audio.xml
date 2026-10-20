@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- tvOS-style now playing: blurred artwork backdrop, artwork card
+     with shadow on the left, clean metadata + progress on the right. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <ImageView
+        android:id="@+id/bgArtwork"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.5"
+        android:scaleType="centerCrop" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#73000000" />
+
+    <TextView
+        android:id="@+id/audioStatsView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|start"
+        android:layout_margin="22dp"
+        android:background="#99000000"
+        android:fontFamily="monospace"
+        android:lineSpacingMultiplier="1.25"
+        android:padding="12dp"
+        android:textColor="#E8E8E8"
+        android:textSize="13sp"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="72dp"
+        android:paddingRight="72dp">
+
+        <FrameLayout
+            android:layout_width="330dp"
+            android:layout_height="330dp">
+
+            <TextView
+                android:id="@+id/artworkPlaceholder"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#26262B"
+                android:elevation="20dp"
+                android:gravity="center"
+                android:text="♪"
+                android:textColor="#55555C"
+                android:textSize="130sp" />
+
+            <ImageView
+                android:id="@+id/artwork"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:elevation="20dp"
+                android:scaleType="fitCenter"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="56dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:letterSpacing="0.18"
+                android:text="AIRPLAY"
+                android:textColor="#B0B0B5"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/trackTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:text="AirPlay Audio"
+                android:textColor="#FFFFFF"
+                android:textSize="32sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/trackArtist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="#E3E3E6"
+                android:textSize="21sp" />
+
+            <TextView
+                android:id="@+id/trackAlbum"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="#9A9AA0"
+                android:textSize="18sp" />
+
+            <com.kurt.airplaytv.ui.VisualizerView
+                android:id="@+id/visualizer"
+                android:layout_width="match_parent"
+                android:layout_height="84dp"
+                android:layout_marginTop="34dp" />
+
+            <LinearLayout
+                android:id="@+id/progressRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/elapsedTime"
+                    android:layout_width="44dp"
+                    android:layout_height="wrap_content"
+                    android:text="0:00"
+                    android:textColor="#B0B0B5"
+                    android:textSize="13sp" />
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_weight="1"
+                    android:max="1000"
+                    android:progressDrawable="@drawable/progress_bar" />
+
+                <TextView
+                    android:id="@+id/remainingTime"
+                    android:layout_width="44dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:text="-0:00"
+                    android:textColor="#B0B0B5"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/audioOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#CC101014"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="14dp">
+
+        <Button
+            android:id="@+id/btnAudioPlayPause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_focusable"
+            android:focusable="true"
+            android:paddingLeft="18dp"
+            android:paddingRight="18dp"
+            android:text="Pause"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/btnAudioVisualizer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:background="@drawable/button_focusable"
+            android:focusable="true"
+            android:paddingLeft="18dp"
+            android:paddingRight="18dp"
+            android:text="Visualizer: On"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/btnAudioStats"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:background="@drawable/button_focusable"
+            android:focusable="true"
+            android:paddingLeft="18dp"
+            android:paddingRight="18dp"
+            android:text="Stats: Off"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/btnAudioBrightDown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:background="@drawable/button_focusable"
+            android:focusable="true"
+            android:paddingLeft="18dp"
+            android:paddingRight="18dp"
+            android:text="Bright −"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/btnAudioBrightUp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:background="@drawable/button_focusable"
+            android:focusable="true"
+            android:paddingLeft="18dp"
+            android:paddingRight="18dp"
+            android:text="Bright +"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/btnAudioStop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:background="@drawable/button_focusable"
+            android:focusable="true"
+            android:paddingLeft="18dp"
+            android:paddingRight="18dp"
+            android:text="Stop"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+    </LinearLayout>
+</FrameLayout>

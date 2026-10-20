@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AirPlay Receiver</string>
+    <string name="how_to_connect">To stream here, connect your iPhone, iPad, or Mac to the same Wi-Fi network, then open Control Center → Screen Mirroring (or the AirPlay icon in an app) and choose this device.</string>
+    <string name="drm_note">Some apps (Netflix, Apple TV+, Prime Video) block mirroring of protected video. That restriction is enforced by those apps on every third-party receiver.</string>
+</resources>

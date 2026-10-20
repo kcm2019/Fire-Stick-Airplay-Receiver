@@ -1,0 +1,134 @@
+package com.github.serezhka.airplay.server.internal;
+
+import com.github.serezhka.airplay.protocol.pairing.PairingIdentity;
+import com.github.serezhka.airplay.server.AirPlayConfig;
+import com.github.serezhka.airplay.server.Playback;
+import com.github.serezhka.airplay.server.internal.handler.control.ControlHandler;
+import com.github.serezhka.airplay.server.internal.handler.control.HlsFcupService;
+import com.github.serezhka.airplay.server.internal.handler.session.SessionManager;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.socket.ServerSocketChannel;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.rtsp.RtspDecoder;
+import io.netty.handler.codec.rtsp.RtspEncoder;
+import io.netty.handler.logging.ByteBufFormat;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+
+import java.net.InetSocketAddress;
+
+@Slf4j
+public class ControlServer implements Runnable {
+
+    private final SessionManager sessionManager;
+    private final HlsFcupService hlsFcupService;
+
+    private final AirPlayConfig airPlayConfig;
+    private final Playback airPlayConsumer;
+
+    private Thread thread;
+
+    @Getter
+    private int port;
+
+    public ControlServer(AirPlayConfig airPlayConfig, Playback airPlayConsumer, PairingIdentity identity) {
+        this.sessionManager = new SessionManager(identity);
+        this.airPlayConfig = airPlayConfig;
+        this.airPlayConsumer = airPlayConsumer;
+        this.hlsFcupService = new HlsFcupService(sessionManager, airPlayConsumer);
+        airPlayConsumer.setObserver(new Playback.Observer() {
+            @Override
+            public void onEnded() {
+                hlsFcupService.refreshActivePlaylists();
+            }
+
+            @Override
+            public void onPresented() {
+                hlsFcupService.onPlaybackPresented();
+            }
+
+            @Override
+            public void onSeekDisplayed() {
+                hlsFcupService.onSeekDisplayed();
+            }
+        });
+    }
+
+    public void start() throws InterruptedException {
+        thread = new Thread(this);
+        thread.start();
+        synchronized (this) {
+            wait();
+        }
+    }
+
+    public void stop() {
+        if (thread != null) {
+            thread.interrupt();
+            thread = null;
+        }
+    }
+
+    @Override
+    public void run() {
+        var serverBootstrap = new ServerBootstrap();
+        var bossGroup = eventLoopGroup();
+        var workerGroup = eventLoopGroup();
+        try {
+            serverBootstrap
+                    .group(bossGroup, workerGroup)
+                    .channel(serverSocketChannelClass())
+                    .localAddress(new InetSocketAddress(0))
+                    .childHandler(new ChannelInitializer<SocketChannel>() {
+                        @Override
+                        public void initChannel(final SocketChannel ch) {
+                            ch.pipeline().addLast(
+                                    new RtspDecoder(),
+                                    new RtspEncoder(),
+                                    new HttpObjectAggregator(2 * 1024 * 1024),
+                                    new LoggingHandler(LogLevel.DEBUG, ByteBufFormat.SIMPLE),
+                                    new ControlHandler(sessionManager, hlsFcupService, airPlayConfig, airPlayConsumer));
+                        }
+                    })
+                    .childOption(ChannelOption.TCP_NODELAY, true)
+                    .childOption(ChannelOption.SO_REUSEADDR, true)
+                    .childOption(ChannelOption.SO_KEEPALIVE, true);
+            var channelFuture = serverBootstrap.bind().sync();
+
+            log.info("AirPlay control server listening on port: {}",
+                    port = ((InetSocketAddress) channelFuture.channel().localAddress()).getPort());
+
+            synchronized (this) {
+                this.notify();
+            }
+
+            channelFuture.channel().closeFuture().sync();
+        } catch (InterruptedException e) {
+            // Android port: upstream rethrew this as RuntimeException, which
+            // escapes the server thread and kills the whole process on any
+            // restart/stop. An interrupt here means shutdown was requested.
+            Thread.currentThread().interrupt();
+            log.info("AirPlay control server interrupted; shutting down");
+        } finally {
+            log.info("AirPlay control server stopped");
+            bossGroup.shutdownGracefully();
+            workerGroup.shutdownGracefully();
+        }
+    }
+
+    private EventLoopGroup eventLoopGroup() {
+        return NettyEventLoops.create();
+    }
+
+    private Class<? extends ServerSocketChannel> serverSocketChannelClass() {
+        // NIO only on Android (see NettyEventLoops).
+        return NioServerSocketChannel.class;
+    }
+}

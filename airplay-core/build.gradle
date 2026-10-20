@@ -1,0 +1,39 @@
+plugins {
+    id 'com.android.library'
+}
+
+// AirPlay protocol + server core, ported from serezhka/java-airplay (MIT).
+// See NOTICE.md for attribution and the list of Android port changes.
+android {
+    namespace 'com.github.serezhka.airplay.core'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 25
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+        coreLibraryDesugaringEnabled true
+    }
+
+    buildFeatures {
+        buildConfig false
+    }
+}
+
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
+
+    implementation 'io.netty:netty-all:4.2.19.Final'
+    implementation 'org.jmdns:jmdns:3.6.1'
+    implementation 'com.googlecode.plist:dd-plist:1.30'
+    implementation 'net.i2p.crypto:eddsa:0.3.0'
+    implementation 'org.whispersystems:curve25519-java:0.5.0'
+    implementation 'io.lindstrom:m3u8-parser:0.30'
+    implementation 'org.slf4j:slf4j-api:2.0.20'
+
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+}
